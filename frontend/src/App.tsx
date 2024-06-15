@@ -1,35 +1,69 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react";
+import "./App.css";
+import { Client } from "@stomp/stompjs";
+
+const stompClient = new Client({
+  brokerURL: "ws://localhost:8080/chat",
+});
+
+interface chatMessage {
+  sender: string;
+  content: string;
+}
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [text, setText] = useState<string>("");
+  const [messages, setMessages] = useState<chatMessage[]>([]);
+
+  stompClient.onConnect = (frame) => {
+    console.log("connected");
+    stompClient.subscribe("/topic/backendOutput", (message) => {
+      setMessages((messages) => [...messages, JSON.parse(message.body)]);
+    });
+  };
+
+  stompClient.onWebSocketError = (error) => {
+    console.error("Error with websocket", error);
+  };
+
+  stompClient.onStompError = (frame) => {
+    console.error("Broker reported error: " + frame.headers["message"]);
+    console.error("Additional details: " + frame.body);
+  };
+
+  const handleSend = () => {
+    stompClient.publish({
+      destination: "/app/backendInput",
+      body: JSON.stringify({ content: text }),
+    });
+    setText("");
+  };
+
+  useEffect(() => {
+    stompClient.activate();
+    console.log("connected");
+    return () => {
+      stompClient.deactivate();
+      console.log("disconnected");
+    };
+  }, []);
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <p>Messages</p>
+      <ul>
+        {messages.map((message, index) => (
+          <li key={index}>
+            <p>{message.sender}</p>
+            <p>{message.content}</p>
+          </li>
+        ))}
+      </ul>
+      <label>Enter message to send:</label>
+      <input value={text} onChange={(e) => setText(e.target.value)} />
+      <button onClick={handleSend}>Send</button>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
