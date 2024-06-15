@@ -35,7 +35,7 @@ function App() {
   const handleSend = () => {
     stompClient.publish({
       destination: "/app/backendInput",
-      body: JSON.stringify({ sender: name, content: text }),
+      body: JSON.stringify({ sender: name.length==0?'Anonymous':name, content: text }),
     });
     setText("");
   };
