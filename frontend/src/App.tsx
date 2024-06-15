@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import { Client } from "@stomp/stompjs";
+import axios from "axios";
 
 const stompClient = new Client({
   brokerURL: "ws://localhost:8080/chat",
@@ -40,9 +41,14 @@ function App() {
     setText("");
   };
 
+  const fetchRecentMessages = ()=>{
+    axios.get("http://localhost:8080/api/message/latest").then(res=>setMessages(res.data));
+  }
+
   useEffect(() => {
     stompClient.activate();
     console.log("connected");
+    fetchRecentMessages();
     return () => {
       stompClient.deactivate();
       console.log("disconnected");
