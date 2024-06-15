@@ -13,12 +13,13 @@ interface chatMessage {
 
 function App() {
   const [text, setText] = useState<string>("");
+  const [name, setName] = useState<string>("");
   const [messages, setMessages] = useState<chatMessage[]>([]);
 
   stompClient.onConnect = (frame) => {
     console.log("connected");
     stompClient.subscribe("/topic/backendOutput", (message) => {
-      setMessages((messages) => [...messages, JSON.parse(message.body)]);
+      setMessages((messages) => [JSON.parse(message.body),...messages]);
     });
   };
 
@@ -34,7 +35,7 @@ function App() {
   const handleSend = () => {
     stompClient.publish({
       destination: "/app/backendInput",
-      body: JSON.stringify({ content: text }),
+      body: JSON.stringify({ sender: name, content: text }),
     });
     setText("");
   };
@@ -49,20 +50,33 @@ function App() {
   }, []);
 
   return (
-    <>
-      <p>Messages</p>
-      <ul>
+    <div className="home-page">
+      <section className="header">
+        <h1>Group chat</h1>
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Your name..."
+        />
+      </section>
+      <section className="chat-section">
         {messages.map((message, index) => (
-          <li key={index}>
-            <p>{message.sender}</p>
+          <article
+            className={message.sender === name ? "our-chat" : "chat"}
+            key={index}
+          >
+            <label>{message.sender}</label>
             <p>{message.content}</p>
-          </li>
+          </article>
         ))}
-      </ul>
-      <label>Enter message to send:</label>
-      <input value={text} onChange={(e) => setText(e.target.value)} />
-      <button onClick={handleSend}>Send</button>
-    </>
+      </section>
+      <section className="chatbox">
+        <input value={text} onChange={(e) => setText(e.target.value)} />
+        <button onClick={handleSend} disabled={text.length == 0}>
+          Send
+        </button>
+      </section>
+    </div>
   );
 }
 
