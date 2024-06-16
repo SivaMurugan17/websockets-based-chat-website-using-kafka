@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: chat-app
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/chatapp
+    username: postgres
+    password: chat123
+
+  kafka:
+    #for IPV6 [::1] is used instead of localhost ( since WSL is enabled in local )
+    bootstrap-servers: "[::1]:9092"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: com.abored.swe.chat_app.model.MessageSerializer
+
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: com.abored.swe.chat_app.model.MessageDeserializer
+      group-id: chatgroup
+      auto-offset-reset: earliest

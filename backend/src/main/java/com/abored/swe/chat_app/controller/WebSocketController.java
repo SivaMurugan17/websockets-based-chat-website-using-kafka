@@ -10,9 +10,11 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 
+import static com.abored.swe.chat_app.constants.AppConstants.TOPIC;
+
 @Controller
 @Slf4j
-public class ChatController {
+public class WebSocketController {
 
     @Autowired
     private MessageService messageService;
@@ -23,7 +25,7 @@ public class ChatController {
     @MessageMapping("/backendInput")
     @SendTo("/topic/backendOutput")
     public Message sendMessage(@Payload Message message){
-        template.send("global",message);
+        template.send(TOPIC,message);
         log.info("Message sent to Kafka");
         return message;
     }

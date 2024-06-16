@@ -20,7 +20,7 @@ function App() {
   stompClient.onConnect = (frame) => {
     console.log("connected");
     stompClient.subscribe("/topic/backendOutput", (message) => {
-      setMessages((messages) => [JSON.parse(message.body),...messages]);
+      setMessages((messages) => [JSON.parse(message.body), ...messages]);
     });
   };
 
@@ -36,14 +36,19 @@ function App() {
   const handleSend = () => {
     stompClient.publish({
       destination: "/app/backendInput",
-      body: JSON.stringify({ sender: name.length==0?'Anonymous':name, content: text }),
+      body: JSON.stringify({
+        sender: name.length == 0 ? "Anonymous" : name,
+        content: text,
+      }),
     });
     setText("");
   };
 
-  const fetchRecentMessages = ()=>{
-    axios.get("http://localhost:8080/api/message/latest").then(res=>setMessages(res.data));
-  }
+  const fetchRecentMessages = () => {
+    axios
+      .get("http://localhost:8080/api/message/latest")
+      .then((res) => setMessages(res.data));
+  };
 
   useEffect(() => {
     stompClient.activate();
@@ -65,10 +70,11 @@ function App() {
           placeholder="Your name..."
         />
       </section>
+
       <section className="chat-section">
         {messages.map((message, index) => (
           <article
-            className={message.sender === name ? "our-chat" : "chat"}
+            className={message.sender === name ? "our-chat" : "other-chat"}
             key={index}
           >
             <label>{message.sender}</label>
@@ -76,7 +82,8 @@ function App() {
           </article>
         ))}
       </section>
-      <section className="chatbox">
+
+      <section className="input-box">
         <input value={text} onChange={(e) => setText(e.target.value)} />
         <button onClick={handleSend} disabled={text.length == 0}>
           Send

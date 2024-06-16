@@ -4,22 +4,22 @@
   padding: 2rem;
 }
 
+.home-page {
+  max-width: 767px;
+  margin: 0% auto;
+}
+
 .header {
   display: flex;
   align-items: center;
 }
 
-.header h1{
+.header h1 {
   margin-right: auto;
 }
 
-.header input{
+.header input {
   font-size: 1.2rem;
-}
-
-.home-page {
-  max-width: 767px;
-  margin: 0% auto;
 }
 
 .chat-section {
@@ -35,7 +35,7 @@
   font-size: 1.2rem;
 }
 
-.chat {
+.other-chat {
   color: #000;
   background-color: #ccc;
   border-radius: 1rem;
@@ -51,19 +51,15 @@
   padding: 5px 10px;
 }
 
-.chatbox {
+.input-box {
   display: flex;
 }
 
-.chatbox input {
+.input-box input {
   flex-basis: 75%;
   padding: 10px;
 }
 
-.chatbox button {
+.input-box button {
   flex-basis: 25%;
-}
-
-p {
-  margin: 0%;
 }
